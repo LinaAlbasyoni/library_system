@@ -25,6 +25,24 @@ def delete_book(book_id):
     conn.commit()
     conn.close()
 
+def search_books(query):
+    conn = connect_db()
+    cursor = conn.cursor()
+    # Search by title OR author using wildcards for partial matches
+    cursor.execute("SELECT * FROM books WHERE title LIKE ? OR author LIKE ?", 
+                   ('%' + query + '%', '%' + query + '%'))
+    results = cursor.fetchall()
+    conn.close()
+    return results
+
+def view_books_from_db():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM books")
+    books = cursor.fetchall()
+    conn.close()
+    return books
+
 if __name__ == "__main__":
     setup_database()
     print("Database setup complete.")
