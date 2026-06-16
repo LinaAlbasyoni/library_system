@@ -17,8 +17,8 @@ Error Handling: Prevents crashes from invalid user inputs (e.g., entering letter
 
 # How to Run
 Clone the repository:
-git clone https://github.com<your-username><repository-name>.git
-cd <repository-name>
+git clone [https://github.com/LinaAlbasyoni/library_system.git](https://github.com/LinaAlbasyoni/library_system.git)
+cd library_system
 
 # Run the application:
 python main.py
