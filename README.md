@@ -33,5 +33,4 @@ database.py: Contains all SQL logic, table creation, and data validation functio
 .gitignore: Keeps the repository clean by excluding local database files and temporary system files.
 
 Built With
-Python
-SQLite3
+Python and SQLite3
