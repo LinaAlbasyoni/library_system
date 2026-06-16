@@ -1,63 +1,61 @@
-from database import setup_database, add_book, get_all_books, update_book, delete_book
-
-def seed_library():
-    """Populates the database with initial classic books."""
-    books_to_add = [
-        ("Hamlet", "William Shakespeare"),
-        ("Romeo and Juliet", "William Shakespeare"),
-        ("A Tale of Two Cities", "Charles Dickens"),
-        ("Oliver Twist", "Charles Dickens")
-    ]
-    for title, author in books_to_add:
-        add_book(title, author)
-    print("Initial classic books have been added!")
+from database import (
+    setup_database, 
+    add_book, get_all_books, update_book, delete_book,
+    add_member, get_all_members, update_member, delete_member
+)
 
 def main():
     setup_database()
     
     while True:
         print("\n--- Library Management System ---")
-        print("1. Add a Book")
-        print("2. View All Books")
-        print("3. Update a Book")
-        print("4. Delete a Book")
-        print("5. Seed Initial Data (Classic Books)")
-        print("6. Exit")
+        print("1. Manage Books")
+        print("2. Manage Members")
+        print("3. Exit")
         
-        choice = input("Select an option (1-6): ")
+        choice = input("Select an option (1-3): ")
         
         if choice == '1':
-            title = input("Enter book title: ")
-            author = input("Enter book author: ")
-            add_book(title, author)
-            print("Book added successfully!")
-            
+            book_menu()
         elif choice == '2':
-            books = get_all_books()
-            print("\n--- Current Library ---")
-            for book in books:
-                print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]}")
-                
+            member_menu()
         elif choice == '3':
-            book_id = input("Enter the ID of the book you want to update: ")
-            new_title = input("Enter the new title: ")
-            new_author = input("Enter the new author: ")
-            update_book(book_id, new_title, new_author)
-            print("Book updated successfully!")
-            
-        elif choice == '4':
-            book_id = input("Enter the ID of the book to delete: ")
-            delete_book(book_id)
-            print("Book deleted.")
-            
-        elif choice == '5':
-            seed_library()
-            
-        elif choice == '6':
             print("Exiting system.")
             break
         else:
-            print("Invalid choice, please try again.")
+            print("Invalid choice.")
+
+def book_menu():
+    while True:
+        print("\n--- Book Menu ---")
+        print("1. Add Book | 2. View All | 3. Update | 4. Delete | 5. Back")
+        choice = input("Choice: ")
+        if choice == '1':
+            add_book(input("Title: "), input("Author: "))
+        elif choice == '2':
+            for b in get_all_books(): print(b)
+        elif choice == '3':
+            update_book(input("ID: "), input("New Title: "), input("New Author: "))
+        elif choice == '4':
+            delete_book(input("ID to delete: "))
+        elif choice == '5':
+            break
+
+def member_menu():
+    while True:
+        print("\n--- Member Menu ---")
+        print("1. Add Member | 2. View All | 3. Update | 4. Delete | 5. Back")
+        choice = input("Choice: ")
+        if choice == '1':
+            add_member(input("Name: "), input("Email: "))
+        elif choice == '2':
+            for m in get_all_members(): print(m)
+        elif choice == '3':
+            update_member(input("ID: "), input("New Name: "), input("New Email: "))
+        elif choice == '4':
+            delete_member(input("ID to delete: "))
+        elif choice == '5':
+            break
 
 if __name__ == "__main__":
     main()
