@@ -1,4 +1,4 @@
-from database import setup_database, add_book
+from database import setup_database, add_book, delete_book
 import sqlite3
 
 def view_books():
@@ -15,7 +15,7 @@ def view_books():
 def main():
     setup_database()
     while True:
-        print("\n1. Add Book\n2. View All Books\n3. Exit")
+        print("\n1. Add Book\n2. View All Books\n3. Delete Book\n4. Exit")
         choice = input("Select an option: ")
         
         if choice == '1':
@@ -26,11 +26,12 @@ def main():
         elif choice == '2':
             view_books()
         elif choice == '3':
-            break
-        elif choice == '4':
+            view_books() # Show IDs so the user knows what to delete
             book_id = input("Enter the ID of the book to delete: ")
             delete_book(book_id)
             print("Book deleted!")
+        elif choice == '4':
+            break
 
 if __name__ == "__main__":
     main()
