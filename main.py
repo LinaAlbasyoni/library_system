@@ -1,5 +1,4 @@
-from database import setup_database, add_book, delete_book, search_books, view_books_from_db
-import sqlite3
+from database import setup_database, add_book, get_all_books, update_book, delete_book
 
 def seed_library():
     """Populates the database with initial classic books."""
@@ -10,64 +9,55 @@ def seed_library():
         ("Oliver Twist", "Charles Dickens")
     ]
     for title, author in books_to_add:
-        # Assuming you have a basic add_book function
         add_book(title, author)
     print("Initial classic books have been added!")
-    
+
 def main():
     setup_database()
+    
     while True:
         print("\n--- Library Management System ---")
-        print("1. Add Book")
+        print("1. Add a Book")
         print("2. View All Books")
-        print("3. Delete Book")
-        print("4. Search Books")
-        print("5. Exit")
+        print("3. Update a Book")
+        print("4. Delete a Book")
+        print("5. Seed Initial Data (Classic Books)")
+        print("6. Exit")
         
-        choice = input("Select an option: ")
+        choice = input("Select an option (1-6): ")
         
         if choice == '1':
-            title = input("Enter title: ")
-            author = input("Enter author: ")
+            title = input("Enter book title: ")
+            author = input("Enter book author: ")
             add_book(title, author)
             print("Book added successfully!")
             
         elif choice == '2':
-            books = view_books_from_db()
+            books = get_all_books()
             print("\n--- Current Library ---")
-            if not books:
-                print("The library is currently empty.")
-            else:
-                for book in books:
-                    print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]}")
-                    
-        elif choice == '3':
-            books = view_books_from_db()
-            if not books:
-                print("The library is empty. Nothing to delete.")
-            else:
-                for book in books:
-                    print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]}")
-                book_id = input("Enter the ID of the book to delete: ")
-                delete_book(book_id)
-                print("Book deleted!")
+            for book in books:
+                print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]}")
                 
-        elif choice == '4':
-            term = input("Enter title or author to search: ")
-            results = search_books(term)
-            print("\n--- Search Results ---")
-            if not results:
-                print("No books found matching your search.")
-            else:
-                for book in results:
-                    print(f"ID: {book[0]} | Title: {book[1]} | Author: {book[2]}")
-                    
-        elif choice == '5':
-            print("Exiting...")
-            break
+        elif choice == '3':
+            book_id = input("Enter the ID of the book you want to update: ")
+            new_title = input("Enter the new title: ")
+            new_author = input("Enter the new author: ")
+            update_book(book_id, new_title, new_author)
+            print("Book updated successfully!")
             
+        elif choice == '4':
+            book_id = input("Enter the ID of the book to delete: ")
+            delete_book(book_id)
+            print("Book deleted.")
+            
+        elif choice == '5':
+            seed_library()
+            
+        elif choice == '6':
+            print("Exiting system.")
+            break
         else:
-            print("Invalid option, please try again.")
+            print("Invalid choice, please try again.")
 
 if __name__ == "__main__":
     main()
