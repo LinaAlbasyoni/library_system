@@ -27,6 +27,10 @@ def main():
             view_books()
         elif choice == '3':
             break
+        elif choice == '4':
+            book_id = input("Enter the ID of the book to delete: ")
+            delete_book(book_id)
+            print("Book deleted!")
 
 if __name__ == "__main__":
     main()

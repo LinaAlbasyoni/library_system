@@ -18,6 +18,13 @@ def add_book(title, author):
     conn.commit()
     conn.close()
 
+def delete_book(book_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM books WHERE id = ?", (book_id,))
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
     setup_database()
     print("Database setup complete.")
