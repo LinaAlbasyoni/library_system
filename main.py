@@ -1,7 +1,7 @@
 from database import (
     setup_database, 
-    add_book, get_all_books, update_book, delete_book,
-    add_member, get_all_members, update_member, delete_member
+    add_book, get_all_books, update_book, delete_book, search_books,
+    add_member, get_all_members, update_member, delete_member, search_members
 )
 
 def main():
@@ -28,7 +28,7 @@ def main():
 def book_menu():
     while True:
         print("\n--- Book Menu ---")
-        print("1. Add Book | 2. View All | 3. Update | 4. Delete | 5. Back")
+        print("1. Add | 2. View All | 3. Update | 4. Delete | 5. Search | 6. Back")
         choice = input("Choice: ")
         if choice == '1':
             add_book(input("Title: "), input("Author: "))
@@ -39,12 +39,19 @@ def book_menu():
         elif choice == '4':
             delete_book(input("ID to delete: "))
         elif choice == '5':
+            query = input("Search term: ")
+            results = search_books(query)
+            if results:
+                for b in results: print(b)
+            else:
+                print("Error: No books found matching that criteria.")
+        elif choice == '6':
             break
 
 def member_menu():
     while True:
         print("\n--- Member Menu ---")
-        print("1. Add Member | 2. View All | 3. Update | 4. Delete | 5. Back")
+        print("1. Add | 2. View All | 3. Update | 4. Delete | 5. Search | 6. Back")
         choice = input("Choice: ")
         if choice == '1':
             add_member(input("Name: "), input("Email: "))
@@ -55,6 +62,13 @@ def member_menu():
         elif choice == '4':
             delete_member(input("ID to delete: "))
         elif choice == '5':
+            query = input("Search term: ")
+            results = search_members(query)
+            if results:
+                for m in results: print(m)
+            else:
+                print("Error: No members found matching that criteria.")
+        elif choice == '6':
             break
 
 if __name__ == "__main__":
