@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Library System</title>
+    <style>
+        :root {
+            --soft-pink: #fce4ec;
+            --warm-beige: #fff3e0;
+            --pastel-teal: #b2dfdb;
+            --deep-rose: #d81b60;
+            --text-brown: #5d4037;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--warm-beige); color: var(--text-brown); padding: 40px; }
+        h1 { text-align: center; color: var(--deep-rose); font-weight: 300; letter-spacing: 2px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: auto; }
+        .section { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 2px solid var(--soft-pink); }
+        .search-row { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        input { padding: 10px; border: 2px solid var(--soft-pink); border-radius: 15px; width: 200px; margin-bottom: 10px; background: #fafafa; display: block; }
+        button { background-color: var(--pastel-teal); color: var(--text-brown); border: none; padding: 10px 0; width: 224px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: transform 0.2s; display: block; text-align: center; }
+        button:hover { background-color: #80cbc4; transform: scale(1.05); }
+        li { padding: 10px 0; border-bottom: 1px dashed var(--soft-pink); }
+    </style>
+</head>
+<body>
+    <h1>Your Library System</h1>
+    <div class="dashboard">
+        <div class="section" style="grid-column: 1 / -1;">
+            <h3>🔍 Search Center</h3>
+            <div class="search-row">
+                <form action="/search" method="GET">
+                    <input name="query" placeholder="Search Books...">
+                    <button type="submit">Find Book</button>
+                </form>
+                <form action="/search_members" method="GET">
+                    <input name="query" placeholder="Search Members...">
+                    <button type="submit">Search Members</button>
+                </form>
+                <form action="/search_borrowed" method="GET">
+                    <input name="query" placeholder="Search Borrowed...">
+                    <button type="submit">Search Borrowed</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📖 Add New Book</h3>
+            <form action="/add_book" method="POST">
+                <input name="title" placeholder="Book Title" required>
+                <input name="author" placeholder="Author" required>
+                <button type="submit">Add Book 🖋️</button>
+            </form>
+            <h3>📚 Library Collection</h3>
+            <ul>
+                {% for book in books %}
+                <li>
+                    <strong>#{{ loop.index }}</strong> (ID: {{ book[0] }}) | {{ book[1] }} by {{ book[2] }}
+                    <form action="/delete_book" method="POST">
+                        <input type="hidden" name="book_id" value="{{ book[0] }}">
+                        <button type="submit">Delete 🗑️</button>
+                    </form>
+                    <form action="/update_book" method="POST">
+                        <input type="hidden" name="book_id" value="{{ book[0] }}">
+                        <input name="title" placeholder="New Title">
+                        <input name="author" placeholder="New Author">
+                        <button type="submit">Edit ✏️</button>
+                    </form>
+                    <form action="/deactivate_book" method="POST">
+                        <input type="hidden" name="book_id" value="{{ book[0] }}">
+                        <button type="submit">Deactivate 🚫</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>✨ Add Member</h3>
+            <form action="/add_member" method="POST">
+                <input name="name" placeholder="Full Name" required>
+                <input name="email" placeholder="Email" required>
+                <button type="submit">Add Member 👥</button>
+            </form>
+            <h3>👥 Registered Members</h3>
+            <ul>
+                {% for member in members %}
+                <li>
+                    <strong>#{{ loop.index }}</strong> (ID: {{ member[0] }}) | {{ member[1] }} ({{ member[2] }})
+                    <form action="/deactivate_member" method="POST">
+                        <input type="hidden" name="member_id" value="{{ member[0] }}">
+                        <button type="submit">Deactivate 🚫</button>
+                    </form>
+                    <form action="/delete_member" method="POST">
+                        <input type="hidden" name="member_id" value="{{ member[0] }}">
+                        <button type="submit">Delete 🗑️</button>
+                    </form>
+                    <form action="/update_member" method="POST">
+                        <input type="hidden" name="member_id" value="{{ member[0] }}">
+                        <input name="name" placeholder="New Name">
+                        <input name="email" placeholder="New Email">
+                        <button type="submit">Update ✏️</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>💌 Record Borrowing</h3>
+            <form action="/add_borrowed" method="POST">
+                <input name="book_id" placeholder="Book ID" required>
+                <input name="member_id" placeholder="Member ID" required>
+                <button type="submit">Record Check out 📖</button>
+            </form>
+            <h3>🏷️ Current Borrowed Books</h3>
+            <ul>
+                {% for item in borrowed %}
+                <li>
+                    <strong>#{{ loop.index }}</strong> | {{ item[1] }} borrowed by {{ item[2] }} ({{ item[3] }})
+                    <form action="/update_status" method="POST">
+                        <input type="hidden" name="borrowed_id" value="{{ item[0] }}">
+                        <select name="status" style="width: 224px; padding: 10px; border-radius: 15px;">
+                            <option value="Borrowed">Borrowed</option>
+                            <option value="Returned">Returned</option>
+                        </select>
+                        <button type="submit">Update 🔄</button>
+                    </form>
+                    <form action="/delete_borrowed" method="POST">
+                        <input type="hidden" name="borrowed_id" value="{{ item[0] }}">
+                        <button type="submit" style="background:#ffcdd2;">Delete 🗑️</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -62,42 +62,40 @@ def get_all_books():
     conn.close()
     return books
 
-def update_book(book_id, new_title, new_author):
+def update_book(book_id, title, author):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('UPDATE books SET title = ?, author = ? WHERE id = ?', (new_title, new_author, book_id))
+    cursor.execute("UPDATE books SET title = ?, author = ? WHERE id = ?", (title, author, book_id))
     conn.commit()
     conn.close()
 
 def delete_book(book_id):
     conn = get_connection()
-    cursor = conn.cursor()
     try:
-        cursor.execute('DELETE FROM books WHERE id = ?', (book_id,))
-        if cursor.rowcount == 0:
-            print("Error: Book ID not found.")
-        else:
-            conn.commit()
-            print("Success: Book deleted.")
-    except sqlite3.IntegrityError:
-        print("Error: Cannot delete book. It is currently checked out.")
-    conn.close()
+        cursor = conn.cursor()
+        # Instead of deleting, we hide it
+        cursor.execute("UPDATE books SET is_active = 0 WHERE id = ?", (book_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 def deactivate_book(book_id):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute('UPDATE books SET is_active = 0 WHERE id = ?', (book_id,))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE books SET is_active = 0 WHERE id = ?", (book_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 def search_books(query):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM books WHERE (title LIKE ? OR author LIKE ?) AND is_active = 1", 
-                   ('%' + query + '%', '%' + query + '%'))
-    results = cursor.fetchall()
+    # Search by title or author
+    cursor.execute("SELECT * FROM books WHERE title LIKE ? OR author LIKE ?", ('%' + query + '%', '%' + query + '%'))
+    records = cursor.fetchall()
     conn.close()
-    return results
+    return records
 
 # --- Member CRUD & Search ---
 
@@ -121,38 +119,40 @@ def get_all_members():
     conn.close()
     return members
 
-def update_member(member_id, new_name, new_email):
+def update_member(member_id, name, email):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute('UPDATE members SET name = ?, email = ? WHERE id = ?', (new_name, new_email, member_id))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE members SET name = ?, email = ? WHERE id = ?", (name, email, member_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 def delete_member(member_id):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM members WHERE id = ?', (member_id,))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM members WHERE id = ?", (member_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
 def search_members(query):
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM members WHERE (name LIKE ? OR email LIKE ?) AND is_active = 1", 
-                   ('%' + query + '%', '%' + query + '%'))
-    results = cursor.fetchall()
-    conn.close()
-    return results
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM members WHERE name LIKE ? OR email LIKE ?", ('%'+query+'%', '%'+query+'%'))
+        return cursor.fetchall()
+    finally:
+        conn.close()
 
 def deactivate_member(member_id):
-    """Soft deletes a member by setting is_active to 0."""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute('UPDATE members SET is_active = 0 WHERE id = ?', (member_id,))
+    # Change 'active' to 'is_active' to match your table definition
+    cursor.execute("UPDATE members SET is_active = 0 WHERE id = ?", (member_id,))
     conn.commit()
     conn.close()
-    print("Success: Member deactivated.")
-
 # --- Borrowing/Loans Operations ---
 
 def borrow_book(book_id, member_id, borrow_date, return_date):
@@ -188,6 +188,50 @@ def return_book(loan_id):
         print("Error: Loan ID not found.")
     
     conn.close()
+
+def add_borrowed(book_id, member_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO borrowing (book_id, member_id, status) VALUES (?, ?, ?)", 
+                   (book_id, member_id, 'Borrowed'))
+    conn.commit()
+    conn.close()
+
+def update_borrowed_status(borrowed_id, new_status):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        # Ensure 'borrowing' table and 'status' column exist
+        cursor.execute("UPDATE borrowing SET status = ? WHERE id = ?", (new_status, borrowed_id))
+        conn.commit()
+    except Exception as e:
+        print(f"DATABASE ERROR: {e}")
+    finally:
+        conn.close()
+
+def delete_borrowed(borrowed_id):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM borrowing WHERE id = ?", (borrowed_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"DATABASE ERROR: {e}")
+    finally:
+        conn.close()
+
+def search_borrowed(query):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''SELECT borrowing.id, books.title, members.name, borrowing.status 
+                          FROM borrowing 
+                          JOIN books ON borrowing.book_id = books.id 
+                          JOIN members ON borrowing.member_id = members.id 
+                          WHERE books.title LIKE ? OR members.name LIKE ?''', ('%'+query+'%', '%'+query+'%'))
+        return cursor.fetchall()
+    finally:
+        conn.close()
 
 def get_all_borrowed_books():
     conn = get_connection()
