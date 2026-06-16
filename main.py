@@ -1,6 +1,19 @@
 from database import setup_database, add_book, delete_book, search_books, view_books_from_db
 import sqlite3
 
+def seed_library():
+    """Populates the database with initial classic books."""
+    books_to_add = [
+        ("Hamlet", "William Shakespeare"),
+        ("Romeo and Juliet", "William Shakespeare"),
+        ("A Tale of Two Cities", "Charles Dickens"),
+        ("Oliver Twist", "Charles Dickens")
+    ]
+    for title, author in books_to_add:
+        # Assuming you have a basic add_book function
+        add_book(title, author)
+    print("Initial classic books have been added!")
+    
 def main():
     setup_database()
     while True:
